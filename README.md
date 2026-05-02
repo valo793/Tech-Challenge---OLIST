@@ -4,10 +4,12 @@
 
 Este documento foi refeito a partir do `Olist Dashboard.pbix` atual e considera apenas os objetos DAX efetivamente usados no dashboard.
 
+Além de registrar o cálculo de cada objeto, a documentação também explica a intenção analítica por trás da modelagem, isto é, por que cada DAX foi construída dessa forma dentro do report.
+
 Resumo do escopo:
 
-- `50` measures usadas diretamente em visuais
-- `14` measures auxiliares chamadas por essas measures
+- `51` measures usadas diretamente em visuais
+- `13` measures auxiliares chamadas por essas measures
 - `8` colunas calculadas DAX usadas no report
 - `4` tabelas calculadas DAX usadas no report
 - fórmulas completas por extenso em `DAX_FORMULAS.md`
@@ -16,13 +18,14 @@ Resumo do escopo:
 
 - O inventário abaixo exclui `LocalDateTable_*` automáticas do Power BI porque elas não alimentam os visuais atuais.
 - Alguns visuais exibem aliases diferentes do nome real da measure no modelo.
-- Aliases identificados: `Clientes Recorrentes` = `Clientes com Recompra por Categoria`; `Itens Vendidos Clientes Recorrentes` = `Itens Vendidos Clientes Recorrentes (Período)`; `Rank Detrator Seller` = `Rank Atraso Seller`; `Estrelas nota média` = `Estrelas Nota Média`.
+- O inventário inclui measures usadas em texto dinâmico de visuais, como `Insight Simulação` no `actionButton` da página de forecast.
+- Aliases identificados: `Clientes Recorrentes` = `Clientes com Recompra por Categoria`; `Itens Vendidos Clientes Recorrentes` = `Itens Vendidos Clientes Recorrentes (Período)`; `Rank Detrator Seller` = `Rank Atraso Seller`; `Estrelas nota média` = `Estrelas Nota Média`; `Receita Histórica` = `Receita Histórica Exibida`.
 
 ## Measures DAX usadas diretamente nos visuais
 
 ### Página `Ganhos e Crescimento`
 
-- `Crescimento Receita % Card`: páginas `Ganhos e Crescimento`. Regra: executa uma divisão protegida contra erro de denominador zero ou nulo. Dependências: `Receita Último Mês`, `Receita Mês Anterior Card`.
+- `Crescimento Receita % Card`: páginas `Ganhos e Crescimento`. Regra: compara a receita do último mês visível com a do mês imediatamente anterior, usando a receita recalculada pela data de entrega. Dependências: `Receita Último Mês`, `Receita Mês Anterior Card`.
 - `Parcelas Médias`: páginas `Ganhos e Crescimento`. Regra: calcula a média de parcelas das transações visíveis no contexto atual. Dependências: nenhuma.
 - `Pedidos`: páginas `Ganhos e Crescimento`, `Logistica e Satisfação`. Regra: conta pedidos distintos visíveis no contexto atual. Dependências: nenhuma.
 - `Receita Produtos (Data Entrega)`: páginas `Ganhos e Crescimento`, `Clientes e Produtos`. Regra: recalcula a receita usando a relação entre `Orders[DateId_Delivered_Customer]` e `Calendario[DateId]`, deslocando o contexto para a data de entrega. Dependências: `Receita Produtos`.
@@ -35,73 +38,73 @@ Resumo do escopo:
 - `% Pedidos Atrasados`: páginas `Logistica e Satisfação`, `Forecast e Simulação`. Regra: divide `Pedidos Atrasados` por `Pedidos Entregues` para expressar a métrica em percentual. Dependências: `Pedidos Atrasados`, `Pedidos Entregues`.
 - `% Pedidos Atrasados por Seller`: páginas `Logistica e Satisfação`. Regra: divide `Pedidos Atrasados por Seller` por `Pedidos por Seller` para expressar a métrica em percentual. Dependências: `Pedidos Atrasados por Seller`, `Pedidos por Seller`.
 - `% Pedidos no Prazo`: páginas `Logistica e Satisfação`. Regra: divide `Pedidos no Prazo` por `Pedidos Entregues` para expressar a métrica em percentual. Dependências: `Pedidos no Prazo`, `Pedidos Entregues`.
-- `% Reviews Negativas`: páginas `Logistica e Satisfação`. Regra: transforma a métrica base em percentual a partir de uma razão DAX calculada no contexto atual. Dependências: nenhuma.
-- `Atraso Médio Entrega`: páginas `Logistica e Satisfação`. Regra: itera uma tabela temporária com `AVERAGEX` para calcular a média do resultado linha a linha. Dependências: nenhuma.
-- `Estrelas Nota Média`: páginas `Logistica e Satisfação`. Alias no visual: `Estrelas nota média`. Regra: converte a nota média em uma representação textual por estrelas a partir da medida base correspondente. Dependências: `Nota Média`.
-- `Estrelas Nota Média Pedidos Atrasados`: páginas `Logistica e Satisfação`. Regra: converte a nota média em uma representação textual por estrelas a partir da medida base correspondente. Dependências: `Nota Média Pedidos Atrasados`.
-- `Estrelas Nota Média Pedidos no Prazo`: páginas `Logistica e Satisfação`. Regra: converte a nota média em uma representação textual por estrelas a partir da medida base correspondente. Dependências: `Nota Média Pedidos no Prazo`.
-- `Lead Time Aprovação até Entrega Transportadora (dias)`: páginas `Logistica e Satisfação`. Regra: calcula o intervalo médio em dias entre eventos logísticos, normalmente filtrando apenas pedidos entregues e usando diferença entre datas. Dependências: nenhuma.
-- `Lead Time Compra até Aprovação (dias)`: páginas `Logistica e Satisfação`. Regra: calcula o intervalo médio em dias entre eventos logísticos, normalmente filtrando apenas pedidos entregues e usando diferença entre datas. Dependências: nenhuma.
-- `Lead Time Compra até Entrega (dias)`: páginas `Logistica e Satisfação`. Regra: calcula o intervalo médio em dias entre eventos logísticos, normalmente filtrando apenas pedidos entregues e usando diferença entre datas. Dependências: nenhuma.
-- `Lead Time Transportadora até Entrega Cliente (dias)`: páginas `Logistica e Satisfação`. Regra: calcula o intervalo médio em dias entre eventos logísticos, normalmente filtrando apenas pedidos entregues e usando diferença entre datas. Dependências: nenhuma.
-- `Nota Média`: páginas `Logistica e Satisfação`. Regra: calcula a média de avaliação dos pedidos no contexto filtrado, com filtros adicionais quando separa atraso e prazo. Dependências: nenhuma.
-- `Nota Média Pedidos Atrasados`: páginas `Logistica e Satisfação`. Regra: calcula a média de avaliação dos pedidos no contexto filtrado, com filtros adicionais quando separa atraso e prazo. Dependências: `Nota Média`.
-- `Nota Média Pedidos Atrasados por Seller`: páginas `Logistica e Satisfação`. Regra: calcula a média de avaliação dos pedidos no contexto filtrado, com filtros adicionais quando separa atraso e prazo. Dependências: `Nota Média por Seller`.
-- `Nota Média Pedidos no Prazo`: páginas `Logistica e Satisfação`. Regra: calcula a média de avaliação dos pedidos no contexto filtrado, com filtros adicionais quando separa atraso e prazo. Dependências: `Nota Média`.
-- `Nota Média por Seller`: páginas `Logistica e Satisfação`. Regra: calcula a média de avaliação dos pedidos no contexto filtrado, com filtros adicionais quando separa atraso e prazo. Dependências: nenhuma.
+- `% Reviews Negativas`: páginas `Logistica e Satisfação`. Regra: divide a quantidade de pedidos avaliados com `review_score < 4` pelo total de pedidos avaliados no contexto. Dependências: nenhuma.
+- `Atraso Médio Entrega`: páginas `Logistica e Satisfação`. Regra: calcula a média de dias de atraso entre a data estimada e a data efetiva de entrega, convertendo entregas no prazo ou adiantadas em `0`. Dependências: nenhuma.
+- `Estrelas Nota Média`: páginas `Logistica e Satisfação`. Alias no visual: `Estrelas nota média`. Regra: converte `Nota Média` em 0 a 5 estrelas inteiras, truncando casas decimais com `INT` e completando o restante com estrelas vazias. Dependências: `Nota Média`.
+- `Estrelas Nota Média Pedidos Atrasados`: páginas `Logistica e Satisfação`. Regra: converte `Nota Média Pedidos Atrasados` em 0 a 5 estrelas inteiras, truncando casas decimais com `INT` e completando o restante com estrelas vazias. Dependências: `Nota Média Pedidos Atrasados`.
+- `Estrelas Nota Média Pedidos no Prazo`: páginas `Logistica e Satisfação`. Regra: converte `Nota Média Pedidos no Prazo` em 0 a 5 estrelas inteiras, truncando casas decimais com `INT` e completando o restante com estrelas vazias. Dependências: `Nota Média Pedidos no Prazo`.
+- `Lead Time Aprovação até Entrega Transportadora (dias)`: páginas `Logistica e Satisfação`. Regra: calcula a média de dias entre aprovação e entrega à transportadora para pedidos com ambas as datas preenchidas. Dependências: nenhuma.
+- `Lead Time Compra até Aprovação (dias)`: páginas `Logistica e Satisfação`. Regra: calcula a média de dias entre compra e aprovação para pedidos com ambas as datas preenchidas. Dependências: nenhuma.
+- `Lead Time Compra até Entrega (dias)`: páginas `Logistica e Satisfação`. Regra: calcula a média de dias entre compra e entrega ao cliente apenas para pedidos `delivered` com ambas as datas preenchidas. Dependências: nenhuma.
+- `Lead Time Transportadora até Entrega Cliente (dias)`: páginas `Logistica e Satisfação`. Regra: calcula a média de dias entre entrega à transportadora e entrega ao cliente para pedidos com ambas as datas preenchidas. Dependências: nenhuma.
+- `Nota Média`: páginas `Logistica e Satisfação`. Regra: calcula a média da nota média de review por pedido no contexto atual, iterando `Orders[order_id]`. Dependências: nenhuma.
+- `Nota Média Pedidos Atrasados`: páginas `Logistica e Satisfação`. Regra: reaplica `Nota Média` apenas sobre pedidos `delivered` entregues depois da data estimada. Dependências: `Nota Média`.
+- `Nota Média Pedidos Atrasados por Seller`: páginas `Logistica e Satisfação`. Regra: reaplica `Nota Média por Seller` apenas sobre pedidos `delivered` atrasados do seller no contexto atual. Dependências: `Nota Média por Seller`.
+- `Nota Média Pedidos no Prazo`: páginas `Logistica e Satisfação`. Regra: reaplica `Nota Média` apenas sobre pedidos `delivered` entregues até a data estimada. Dependências: `Nota Média`.
+- `Nota Média por Seller`: páginas `Logistica e Satisfação`. Regra: calcula a média das notas dos pedidos do seller usando o conjunto de `order_id` visível em `Order Items` e `TREATAS` para levar esse conjunto a `Order Reviews`. Dependências: nenhuma.
 - `Pedidos`: páginas `Ganhos e Crescimento`, `Logistica e Satisfação`. Regra: conta pedidos distintos visíveis no contexto atual. Dependências: nenhuma.
-- `Pedidos Atrasados`: páginas `Logistica e Satisfação`. Regra: consolida volume de pedidos no contexto atual, com filtros adicionais quando segmenta prazo, atraso ou seller. Dependências: nenhuma.
-- `Pedidos no Prazo`: páginas `Logistica e Satisfação`. Regra: consolida volume de pedidos no contexto atual, com filtros adicionais quando segmenta prazo, atraso ou seller. Dependências: nenhuma.
-- `Pedidos por Seller`: páginas `Logistica e Satisfação`. Regra: consolida volume de pedidos no contexto atual, com filtros adicionais quando segmenta prazo, atraso ou seller. Dependências: nenhuma.
-- `Rank Atraso Seller`: páginas `Logistica e Satisfação`. Alias no visual: `Rank Detrator Seller`. Regra: gera um ranking sobre a base comparativa no contexto atual, normalmente com `RANKX` e filtros para remover valores inválidos. Dependências: `Score Atraso Seller`.
+- `Pedidos Atrasados`: páginas `Logistica e Satisfação`. Regra: conta pedidos distintos `delivered` cuja entrega ao cliente ocorreu após a data estimada. Dependências: nenhuma.
+- `Pedidos no Prazo`: páginas `Logistica e Satisfação`. Regra: conta pedidos distintos `delivered` cuja entrega ao cliente ocorreu até a data estimada. Dependências: nenhuma.
+- `Pedidos por Seller`: páginas `Logistica e Satisfação`. Regra: conta pedidos distintos do seller no contexto atual a partir do conjunto de `order_id` visível em `Order Items`. Dependências: nenhuma.
+- `Rank Atraso Seller`: páginas `Logistica e Satisfação`. Alias no visual: `Rank Detrator Seller`. Regra: ranqueia apenas sellers com `Score Atraso Seller` positivo dentro do contexto selecionado usando `RANKX` sobre `ALLSELECTED('Sellers'[Seller_Alias])`. Dependências: `Score Atraso Seller`.
 
 ### Página `Clientes e Produtos`
 
 - `% Clientes com Recompra`: páginas `Clientes e Produtos`, `Forecast e Simulação`. Regra: divide `Clientes com Recompra por Categoria` por `Clientes Únicos` para expressar a métrica em percentual. Dependências: `Clientes com Recompra por Categoria`, `Clientes Únicos`.
-- `Clientes com Recompra por Categoria`: páginas `Clientes e Produtos`. Alias no visual: `Clientes Recorrentes`. Regra: segmenta a base de clientes entre novos, recorrentes ou compradores com recompra conforme o contexto temporal e de produto. Dependências: nenhuma.
-- `Clientes Novos`: páginas `Clientes e Produtos`. Regra: segmenta a base de clientes entre novos, recorrentes ou compradores com recompra conforme o contexto temporal e de produto. Dependências: nenhuma.
+- `Clientes com Recompra por Categoria`: páginas `Clientes e Produtos`. Alias no visual: `Clientes Recorrentes`. Regra: conta clientes que já haviam comprado antes do mês corrente e voltaram a comprar no mês atual dentro da categoria e do contexto visível. Dependências: nenhuma.
+- `Clientes Novos`: páginas `Clientes e Produtos`. Regra: conta clientes cuja primeira compra histórica caiu dentro do mês corrente do contexto. Dependências: nenhuma.
 - `Clientes Únicos`: páginas `Clientes e Produtos`. Regra: conta clientes únicos no contexto atual usando a chave `customer_unique_id`. Dependências: nenhuma.
 - `Frequência Média de Compra`: páginas `Clientes e Produtos`. Regra: mede a frequência média de compra do cliente dentro da janela analisada. Dependências: nenhuma.
 - `Itens Vendidos`: páginas `Clientes e Produtos`. Regra: conta linhas da tabela de itens para representar o volume de itens vendidos. Dependências: nenhuma.
-- `Itens Vendidos Clientes Recorrentes (Período)`: páginas `Clientes e Produtos`. Alias no visual: `Itens Vendidos Clientes Recorrentes`. Regra: segmenta a base de clientes entre novos, recorrentes ou compradores com recompra conforme o contexto temporal e de produto. Dependências: nenhuma.
+- `Itens Vendidos Clientes Recorrentes (Período)`: páginas `Clientes e Produtos`. Alias no visual: `Itens Vendidos Clientes Recorrentes`. Regra: conta itens vendidos para clientes que têm pelo menos dois pedidos distintos no contexto, removendo o filtro de `Products` na identificação da recorrência. Dependências: nenhuma.
 - `Receita 3 Meses Anteriores`: páginas `Clientes e Produtos`. Regra: soma a receita da janela imediatamente anterior de três meses para comparar com a janela atual. Dependências: `Receita Produtos`.
 - `Receita Produtos (Data Entrega)`: páginas `Ganhos e Crescimento`, `Clientes e Produtos`. Regra: recalcula a receita usando a relação entre `Orders[DateId_Delivered_Customer]` e `Calendario[DateId]`, deslocando o contexto para a data de entrega. Dependências: `Receita Produtos`.
 - `Receita Últimos 3 Meses`: páginas `Clientes e Produtos`. Regra: soma a receita dos três meses mais recentes dentro do contexto temporal visível. Dependências: `Receita Produtos`.
-- `Tendência Receita %`: páginas `Clientes e Produtos`. Regra: executa uma divisão protegida contra erro de denominador zero ou nulo. Dependências: `Receita Últimos 3 Meses`, `Receita 3 Meses Anteriores`.
-- `Top 1 Receita`: páginas `Clientes e Produtos`. Regra: recupera a posição correspondente do ranking montado para sellers, usando ordenação e seleção do item desejado. Dependências: nenhuma.
-- `Top 1 Seller`: páginas `Clientes e Produtos`. Regra: recupera a posição correspondente do ranking montado para sellers, usando ordenação e seleção do item desejado. Dependências: nenhuma.
-- `Top 2 Receita`: páginas `Clientes e Produtos`. Regra: recupera a posição correspondente do ranking montado para sellers, usando ordenação e seleção do item desejado. Dependências: nenhuma.
-- `Top 2 Seller`: páginas `Clientes e Produtos`. Regra: recupera a posição correspondente do ranking montado para sellers, usando ordenação e seleção do item desejado. Dependências: nenhuma.
-- `Top 3 Receita`: páginas `Clientes e Produtos`. Regra: recupera a posição correspondente do ranking montado para sellers, usando ordenação e seleção do item desejado. Dependências: nenhuma.
-- `Top 3 Seller`: páginas `Clientes e Produtos`. Regra: recupera a posição correspondente do ranking montado para sellers, usando ordenação e seleção do item desejado. Dependências: nenhuma.
+- `Tendência Receita %`: páginas `Clientes e Produtos`. Regra: compara a receita dos últimos 3 meses com a janela imediatamente anterior de 3 meses. Dependências: `Receita Últimos 3 Meses`, `Receita 3 Meses Anteriores`.
+- `Top 1 Receita`: páginas `Clientes e Produtos`. Regra: monta um ranking composto pela soma das posições em receita, pedidos e itens, e retorna a receita formatada do seller em 1º lugar. Dependências: nenhuma.
+- `Top 1 Seller`: páginas `Clientes e Produtos`. Regra: monta um ranking composto pela soma das posições em receita, pedidos e itens, e retorna o alias do seller em 1º lugar. Dependências: nenhuma.
+- `Top 2 Receita`: páginas `Clientes e Produtos`. Regra: monta o mesmo ranking composto e retorna a receita formatada do seller em 2º lugar. Dependências: nenhuma.
+- `Top 2 Seller`: páginas `Clientes e Produtos`. Regra: monta o mesmo ranking composto e retorna o alias do seller em 2º lugar. Dependências: nenhuma.
+- `Top 3 Receita`: páginas `Clientes e Produtos`. Regra: monta o mesmo ranking composto e retorna a receita formatada do seller em 3º lugar. Dependências: nenhuma.
+- `Top 3 Seller`: páginas `Clientes e Produtos`. Regra: monta o mesmo ranking composto e retorna o alias do seller em 3º lugar. Dependências: nenhuma.
 
 ### Página `Forecast e Simulação`
 
 - `% Clientes com Recompra`: páginas `Clientes e Produtos`, `Forecast e Simulação`. Regra: divide `Clientes com Recompra por Categoria` por `Clientes Únicos` para expressar a métrica em percentual. Dependências: `Clientes com Recompra por Categoria`, `Clientes Únicos`.
 - `% Pedidos Atrasados`: páginas `Logistica e Satisfação`, `Forecast e Simulação`. Regra: divide `Pedidos Atrasados` por `Pedidos Entregues` para expressar a métrica em percentual. Dependências: `Pedidos Atrasados`, `Pedidos Entregues`.
-- `% Receita Sellers Estratégicos`: páginas `Forecast e Simulação`. Regra: divide `Receita Sellers Estratégicos` por `Receita Produtos` para expressar a métrica em percentual. Dependências: `Receita Sellers Estratégicos`, `Receita Produtos`.
+- `% Receita Sellers Estratégicos`: páginas `Forecast e Simulação`. Regra: divide a receita dos sellers estratégicos pelo total de receita removendo filtros de seller do denominador. Dependências: `Receita Sellers Estratégicos`, `Receita Produtos`.
 - `Ganho Projetado %`: páginas `Forecast e Simulação`. Regra: divide o ganho absoluto projetado pela receita baseline dos três meses futuros para transformar o cenário em percentual. Dependências: `Ganho Projetado 3 Meses`, `Receita Baseline 3 Meses`.
-- `Receita Forecast Baseline`: páginas `Forecast e Simulação`. Regra: projeta o baseline dos meses futuros a partir da média-base e restringe a exibição à janela válida de forecast. Dependências: `Último Mês Válido`, `Receita Média Base 3M`.
+- `Insight Simulação`: páginas `Forecast e Simulação`. Regra: monta um texto narrativo com os parâmetros selecionados e o resultado do cenário, exibindo a receita projetada e a variação sobre o baseline. Dependências: `Receita Projetada 3 Meses`, `Ganho Projetado %`.
+- `Receita Forecast Baseline`: páginas `Forecast e Simulação`. Regra: retorna a média base apenas para meses entre 1 e 3 meses à frente do `Último Mês Válido`; fora dessa janela devolve `BLANK()`. Dependências: `Último Mês Válido`, `Receita Média Base 3M`.
 - `Receita Forecast Simulada`: páginas `Forecast e Simulação`. Regra: aplica o impacto da simulação sobre o baseline do forecast; quando existe baseline, retorna `Baseline * (1 + Impacto)` e, fora da janela projetada, devolve `BLANK()`. Dependências: `Receita Forecast Baseline`, `Impacto Total Simulação %`.
 - `Receita Histórica Exibida`: páginas `Forecast e Simulação`. Regra: mostra a receita histórica apenas até o último mês considerado válido, devolvendo `BLANK()` fora dessa janela. Dependências: `Último Mês Válido`, `Receita Produtos`.
-- `Receita Projetada 3 Meses`: páginas `Forecast e Simulação`. Regra: soma a projeção simulada dos três meses seguintes por meio de uma tabela temporária de meses e `SUMX`. Dependências: `Receita Forecast Simulada`.
+- `Receita Projetada 3 Meses`: páginas `Forecast e Simulação`. Regra: soma a projeção simulada dos três meses seguintes por meio de uma tabela temporária de meses e `SUMX`. Dependências: `Ultimo Mês Real`, `Receita Forecast Simulada`.
 
 ## Measures auxiliares chamadas pelas medidas acima
 
 - `Ganho Projetado 3 Meses`: suporte para `Forecast e Simulação`. Regra: subtrai a receita baseline da receita projetada para obter o ganho absoluto do cenário simulado. Dependências: `Receita Projetada 3 Meses`, `Receita Baseline 3 Meses`.
-- `Impacto Total Simulação %`: suporte para `Forecast e Simulação`. Regra: consolida os três parâmetros de simulação em um impacto percentual único, convertendo cada parâmetro em fração, aplicando os fatores `0.1`, `0.1` e `0.8` e combinando os efeitos de forma multiplicativa. Dependências: `Valor Param Redução Atraso`, `Valor Param Aumento Recompra`, `Valor Param Expansão Sellers`.
-- `Pedidos Atrasados por Seller`: suporte para `Logistica e Satisfação`. Regra: consolida volume de pedidos no contexto atual, com filtros adicionais quando segmenta prazo, atraso ou seller. Dependências: nenhuma.
-- `Pedidos Entregues`: suporte para `Logistica e Satisfação`, `Forecast e Simulação`. Regra: consolida volume de pedidos no contexto atual, com filtros adicionais quando segmenta prazo, atraso ou seller. Dependências: `Pedidos`.
-- `Receita Baseline 3 Meses`: suporte para `Forecast e Simulação`. Regra: soma o baseline projetado dos três meses futuros a partir da medida `Receita Forecast Baseline`. Dependências: `Receita Forecast Baseline`.
+- `Impacto Total Simulação %`: suporte para `Forecast e Simulação`. Regra: consolida os três parâmetros de simulação em um impacto percentual único, convertendo cada parâmetro em fração, aplicando os fatores `0.1`, `0.1` e `0.8` e combinando os efeitos de forma multiplicativa. A implementação lê diretamente as colunas das tabelas de parâmetro, sem passar pelas measures `Valor Param *`. Dependências: nenhuma.
+- `Pedidos Atrasados por Seller`: suporte para `Logistica e Satisfação`. Regra: conta pedidos distintos do seller que foram entregues com atraso, reaplicando o conjunto de `order_id` do seller sobre `Orders` com `TREATAS`. Dependências: nenhuma.
+- `Pedidos Entregues`: suporte para `Logistica e Satisfação`, `Forecast e Simulação`. Regra: reaplica a measure `Pedidos` apenas sobre pedidos com `order_status = "delivered"`. Dependências: `Pedidos`.
+- `Receita Baseline 3 Meses`: suporte para `Forecast e Simulação`. Regra: soma o baseline mensal projetado para os três meses imediatamente após o `Ultimo Mês Real`. Dependências: `Ultimo Mês Real`, `Receita Forecast Baseline`.
 - `Receita Média Base 3M`: suporte para `Forecast e Simulação`. Regra: calcula a média mensal de receita dos três meses válidos anteriores, servindo de base para o forecast. Dependências: `Último Mês Válido`, `Receita Produtos`.
 - `Receita Mês Anterior Card`: suporte para `Ganhos e Crescimento`. Regra: recalcula a receita do mês imediatamente anterior ao último mês visível usando a medida de receita por data de entrega. Dependências: `Receita Produtos (Data Entrega)`.
-- `Receita Produtos`: suporte para `Ganhos e Crescimento`, `Clientes e Produtos`, `Forecast e Simulação`. Regra: soma a coluna monetária relevante no contexto de filtro atual. Dependências: nenhuma.
-- `Receita Sellers Estratégicos`: suporte para `Forecast e Simulação`. Regra: isola os sellers de maior receita e soma sua participação para compor a análise de sellers estratégicos. Dependências: `Receita Produtos`.
+- `Receita Produtos`: suporte para `Ganhos e Crescimento`, `Clientes e Produtos`, `Forecast e Simulação`. Regra: soma `Order Items[price]` no contexto de filtro atual. Dependências: nenhuma.
+- `Receita Sellers Estratégicos`: suporte para `Forecast e Simulação`. Regra: monta o top 10 global de sellers por receita com `ALL('Sellers')` e soma a receita apenas desse grupo. Dependências: `Receita Produtos`.
 - `Score Atraso Seller`: suporte para `Logistica e Satisfação`. Regra: monta um score de atraso por seller combinando volume de pedidos e atraso médio, para servir de base ao ranking de detratores. Dependências: nenhuma.
 - `Último Mês Válido`: suporte para `Forecast e Simulação`. Regra: identifica o último mês com cobertura suficiente de dias para sustentar o forecast, usando uma tabela temporária por mês e validação de cobertura mínima. Dependências: nenhuma.
-- `Valor Param Aumento Recompra`: suporte para `Forecast e Simulação`. Regra: lê o valor selecionado no parâmetro da simulação usando `SELECTEDVALUE` com padrão zero. Dependências: nenhuma.
-- `Valor Param Expansão Sellers`: suporte para `Forecast e Simulação`. Regra: lê o valor selecionado no parâmetro da simulação usando `SELECTEDVALUE` com padrão zero. Dependências: nenhuma.
-- `Valor Param Redução Atraso`: suporte para `Forecast e Simulação`. Regra: lê o valor selecionado no parâmetro da simulação usando `SELECTEDVALUE` com padrão zero. Dependências: nenhuma.
+- `Ultima Data Real`: suporte para `Forecast e Simulação`. Regra: captura a data máxima de compra ignorando filtros do calendário. Dependências: nenhuma.
+- `Ultimo Mês Real`: suporte para `Forecast e Simulação`. Regra: transforma `Ultima Data Real` no fechamento do respectivo mês com `EOMONTH`. Dependências: `Ultima Data Real`.
 
 ## Colunas calculadas DAX usadas no report
 
@@ -123,13 +126,25 @@ Resumo do escopo:
 
 ## Calibração Estatística da Simulação
 
-A measure `Impacto Total Simulação %` usa na implementação DAX os fatores `0.1`, `0.1` e `0.8`, mas a base metodológica da calibração está registrada em `Regressions.xlsx`, na mesma pasta deste projeto.
+A measure `Impacto Total Simulação %` usa na implementação DAX os fatores `0.1`, `0.1` e `0.8`, mas esses pesos não reproduzem literalmente a regressão. Eles operacionalizam, de forma simplificada, os drivers que foram testados no estudo salvo em `regression/Regressions.xlsx`.
 
-A regressão foi montada com as colunas `AnoMes`, `% Pedidos`, `% Clientes`, `% Receita`, `Receita M` e `Crescimento Receita M+1`, gerando os seguintes coeficientes:
+A regressão foi montada com as colunas `AnoMes`, `% Pedidos Atrasados`, `% Clientes com Recompra`, `% Receita Sellers Estratégicos`, `Receita M`, `Receita M+1` e `Crescimento Receita M+1`.
 
-- `Sellers`: `0,0146074473418258`
-- `Pedidos atrasados`: `0,625031150981618`
-- `Recompras`: `0,926411608915787`
+Na aba `Regressions`, os números citados anteriormente correspondem à coluna `P-value`, e não à coluna `Coefficients`. Pela ordem das variáveis na aba `Base`, os `p-values` são:
+
+- `% Pedidos Atrasados`: `0,926411608915787`
+- `% Clientes com Recompra`: `0,625031150981618`
+- `% Receita Sellers Estratégicos`: `0,0146074473418258`
+
+Dentro desse recorte e dessa amostra, isso indica que `% Receita Sellers Estratégicos` foi o driver com evidência estatística mais forte, enquanto `% Pedidos Atrasados` e `% Clientes com Recompra` entram no simulador como alavancas mais exploratórias/experimentais.
+
+Os coeficientes estimados na mesma regressão foram:
+
+- `% Pedidos Atrasados`: `0,12405801074994748`
+- `% Clientes com Recompra`: `-3,9414744448514445`
+- `% Receita Sellers Estratégicos`: `4,1437796177616635`
+
+Por isso, a DAX `Impacto Total Simulação %` deve ser lida como uma camada de simulação de cenário guiada pelo estudo estatístico, e não como uma transcrição direta da equação de regressão.
 
 ## Fórmulas completas
 

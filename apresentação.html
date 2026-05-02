@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tech Challenge Olist Data - Apresentacao Executiva</title>
+  <style>
+    :root {
+      --bg: #eef2f6;
+      --panel: #ffffff;
+      --ink: #14212c;
+      --muted: #637381;
+      --line: #d8e1ea;
+      --navy: #13202d;
+      --green: #1d9a63;
+      --green-soft: #e8f7f0;
+      --red: #c84d4d;
+      --red-soft: #fff1f1;
+      --blue-soft: #edf5ff;
+      --shadow: 0 14px 34px rgba(17, 24, 39, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      overflow: hidden;
+    }
+
+    .app {
+      height: 100%;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, #13202d 0%, #0e1720 100%);
+      color: #cad5de;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .brand {
+      padding: 26px 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #8fa5b7;
+      margin-bottom: 8px;
+      font-weight: 800;
+    }
+    .brand h1 {
+      margin: 0;
+      color: #fff;
+      font-size: 22px;
+      line-height: 1.15;
+      font-weight: 900;
+    }
+    .brand p {
+      margin: 10px 0 0;
+      color: #9bb0c2;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .nav {
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+    }
+    .nav button {
+      background: transparent;
+      color: #9bb0c2;
+      border: 0;
+      border-left: 4px solid transparent;
+      text-align: left;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 14px 14px 14px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+    .nav button:hover {
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+    }
+    .nav button.active {
+      background: rgba(29, 154, 99, 0.12);
+      color: #fff;
+      border-left-color: var(--green);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 18px 22px;
+      font-size: 12px;
+      color: #90a4b6;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      line-height: 1.5;
+    }
+
+    .stage {
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at top right, #f8fbff 0%, var(--bg) 46%);
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(18px);
+      transition: opacity .28s ease, transform .28s ease;
+      padding: 28px 42px 34px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow: hidden;
+    }
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .slide-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      flex: 0 0 auto;
+    }
+    .slide-top .tag {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+    .slide-top h2 {
+      margin: 0;
+      font-size: clamp(28px, 2.1vw, 42px);
+      line-height: 1.08;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+    .slide-top p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+      max-width: 900px;
+    }
+
+    .takeaway {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--green);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 14px 20px;
+      flex: 0 0 auto;
+    }
+    .takeaway p {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #3f4f5e;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+      min-height: 0;
+    }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .card h3 {
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 900;
+    }
+    .card h4 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.35;
+      font-weight: 800;
+    }
+    .card p, .card li {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #425466;
+    }
+
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-height: 124px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .kpi .label {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .kpi .value {
+      font-size: clamp(30px, 2.2vw, 46px);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .kpi .sub {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .accent-top { border-top: 4px solid var(--green); }
+
+    .list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .list li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--green);
+      margin-top: 7px;
+      flex: 0 0 auto;
+    }
+
+    .chart-box {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chart-box img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 16px;
+      border: 1px solid #e5ecf3;
+      background: #fff;
+    }
+    .chart-caption {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .priority {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 16px;
+      align-items: start;
+      padding: 14px 0;
+      border-bottom: 1px solid #edf2f6;
+    }
+    .priority:last-child { border-bottom: 0; }
+    .priority .n {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .table th, .table td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #edf1f5;
+      text-align: left;
+    }
+    .table th {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+      font-weight: 900;
+      background: #f8fafc;
+    }
+
+    .safe-box {
+      background: #f8fafc;
+      border: 1px solid #e5ecf3;
+      border-radius: 16px;
+      padding: 16px 18px;
+    }
+    .safe-box h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: var(--ink);
+    }
+    .safe-box p {
+      margin: 0;
+      font-size: 14px;
+      color: #425466;
+      line-height: 1.55;
+    }
+
+    .dark-card {
+      background: linear-gradient(180deg, #15222e 0%, #0f1821 100%);
+      color: #fff;
+      border-color: #15222e;
+    }
+    .dark-card h3 {
+      color: #9bb0c2;
+    }
+    .dark-card p, .dark-card li {
+      color: #d7e0e8;
+    }
+
+    .scenario-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 6px;
+    }
+    .scenario-row {
+      display: grid;
+      grid-template-columns: 180px 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+    .scenario-row .name {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .scenario-bar {
+      height: 16px;
+      border-radius: 999px;
+      background: #e8eef5;
+      overflow: hidden;
+      position: relative;
+    }
+    .scenario-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #4c88ff 0%, #1d9a63 100%);
+    }
+    .scenario-fill.baseline {
+      background: linear-gradient(90deg, #9fb7d0 0%, #5f7387 100%);
+    }
+    .scenario-row .amount {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--ink);
+    }
+    .scenario-note {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: #f7fafc;
+      border: 1px solid #e4ebf2;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #415365;
+    }
+
+    .nav-controls {
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      z-index: 30;
+      display: flex;
+      gap: 10px;
+    }
+    .nav-controls button {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 900;
+    }
+    .nav-controls button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 1280px) {
+      .app { grid-template-columns: 240px 1fr; }
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="eyebrow">Tech Challenge · Data Analytics</div>
+        <h1>Olist Data<br/>Apresentacao Executiva</h1>
+        <p>Recorte principal da análise: janeiro de 2017 a agosto de 2018.</p>
+      </div>
+      <nav class="nav">
+        <button class="active" data-target="0">1. Tese Central</button>
+        <button data-target="1">2. Escopo e Base</button>
+        <button data-target="2">3. Crescimento Concentrado</button>
+        <button data-target="3">4. Logistica e Satisfacao</button>
+        <button data-target="4">5. Sellers Priorizaveis</button>
+        <button data-target="5">6. Recompra e Retencao</button>
+        <button data-target="6">7. Cenário M+1</button>
+        <button data-target="7">8. Validação e Fechamento</button>
+      </nav>
+      <div class="sidebar-footer">
+        Base principal da apresentacao: 01/01/2017 a 31/08/2018.<br/>
+        Navegacao: menu lateral ou setas do teclado.
+      </div>
+    </aside>
+
+    <main class="stage">
+      <section class="slide active">
+        <div class="slide-top">
+          <div>
+            <div class="tag">Tech Challenge Olist Data</div>
+            <h2>Crescimento com concentração,<br/>fricção logística e alavancas de captura de valor</h2>
+            <p>Uma leitura executiva para mostrar onde a Olist cria valor, onde perde valor e quais movimentos parecem mais defensaveis para sustentar expansao futura.</p>
+          </div>
+        </div>
+
+        <div class="card" style="padding: 34px;">
+          <h3>Tese central do projeto</h3>
+          <h4 style="font-size: 28px; max-width: 980px;">A Olist cresceu, mas de forma concentrada; o principal fator de erosão de valor está na logística; e o maior potencial de ganho futuro está em ampliar sellers estratégicos com apoio de retenção e disciplina operacional.</h4>
+          <p style="max-width: 920px; margin-top: 14px;">A narrativa foi estruturada com validação estatística complementar para sustentar a tese central com evidências defensáveis, linguagem executiva e foco em decisão.</p>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>O que esta apresentacao responde</h3>
+            <ul class="list">
+              <li><span class="dot"></span><span>Onde o crescimento comercial se concentra e por que isso importa.</span></li>
+              <li><span class="dot"></span><span>Como o atraso logístico afeta satisfação e destrói valor percebido.</span></li>
+              <li><span class="dot"></span><span>Quais sellers e quais frentes merecem prioridade executiva.</span></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Principio de leitura</h3>
+            <ul class="list">
+              <li><span class="dot"></span><span>Usar linguagem de associacao, nao de causalidade.</span></li>
+              <li><span class="dot"></span><span>Levar para a defesa principal apenas graficos coerentes com a tese e de facil sustentacao.</span></li>
+              <li><span class="dot"></span><span>Tratar cenários como leitura orientada por hipóteses de negócio, e não como previsão exata.</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="slide-top">
+          <div>
+            <div class="tag">Escopo</div>
+            <h2>Base tratada para refletir a mesma lógica principal do painel executivo</h2>
+            <p>O recorte estatístico foi alinhado para evitar ruído de meses muito iniciais, usando apenas a janela principal de 2017 a agosto de 2018 e excluindo cancelados e indisponíveis.</p>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <p><strong>Mensagem do slide:</strong> a análise usa uma camada estatística complementar para testar consistência, reforçar evidências relevantes e reduzir o risco de conclusões apressadas.</p>
+        </div>
+
+        <div class="grid grid-4">
+          <div class="kpi accent-top"><div class="label">Receita total</div><div class="value">R$ 15,68 mi</div><div class="sub">Receita da base comercial tratada</div></div>
+          <div class="kpi"><div class="label">Pedidos</div><div class="value">97.905</div><div class="sub">Pedidos no recorte principal</div></div>
+          <div class="kpi"><div class="label">Ticket medio</div><div class="value">R$ 160,19</div><div class="sub">Receita por pedido no periodo</div></div>
+          <div class="kpi accent-top"><div class="label">Clientes unicos</div><div class="value">94.703</div><div class="sub">Base ativa observada no recorte</div></div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Regras principais do recorte</h3>
+            <div class="priority"><div class="n">1</div><div><h4 style="margin-bottom:6px;">Jan/2017 a Ago/2018</h4><p>Meses anteriores a 2017 foram retirados para evitar distorção de leitura e ficar mais aderente ao painel principal.</p></div></div>
+            <div class="priority"><div class="n">2</div><div><h4 style="margin-bottom:6px;">Base comercial tratada</h4><p>Pedidos cancelados e indisponiveis foram excluidos da camada principal.</p></div></div>
+            <div class="priority"><div class="n">3</div><div><h4 style="margin-bottom:6px;">Meses residuais</h4><p>O ultimo mes incompleto ficou fora da serie mensal principal para evitar ruido.</p></div></div>
+          </div>
+
+          <div class="card">
+            <h3>Como a validação estatística apoia a narrativa</h3>
+            <div class="safe-box" style="margin-bottom: 14px;">
+              <h4>Evidencias robustas</h4>
+              <p>Pareto de concentração, testes de diferença, boxplot de satisfação, ranking de sellers detratores e leitura de recompra em linguagem executiva.</p>
+            </div>
+            <div class="safe-box">
+              <h4>Leituras complementares</h4>
+              <p>Leituras multivariadas e cenários entram apenas como apoio técnico de consistência, sem protagonismo na narrativa principal e sem afirmação de causalidade.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="slide-top">
+          <div>
+            <div class="tag">Achado 1</div>
+            <h2>O crescimento existe, mas esta concentrado em poucos polos e categorias</h2>
+            <p>Os dados sugerem tracao comercial real, mas com dependencia relevante de grandes centros urbanos, categorias lideres e um grupo restrito de sellers.</p>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <p><strong>Leitura executiva:</strong> a Olist ganhou escala, mas o valor nao esta pulverizado. Isso reforca oportunidade de expansao seletiva e tambem evidencia dependencia de poucos motores de crescimento.</p>
+        </div>
+
+        <div class="grid grid-4">
+          <div class="kpi accent-top"><div class="label">Top 10 cidades</div><div class="value">33,35%</div><div class="sub">Participacao da receita em poucos polos</div></div>
+          <div class="kpi"><div class="label">Sao Paulo</div><div class="value">13,68%</div><div class="sub">Share isolado da cidade lider</div></div>
+          <div class="kpi"><div class="label">Top 5 categorias</div><div class="value">39,28%</div><div class="sub">Concentracao nas categorias lideres</div></div>
+          <div class="kpi accent-top"><div class="label">Top 10 categorias</div><div class="value">62,37%</div><div class="sub">Maior parte do valor em poucas frentes</div></div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Pareto de receita por cidade</h3>
+            <div class="chart-box">
+              <img src="output/charts/pareto_receita_cidade.png" alt="Pareto de receita por cidade" />
+              <p class="chart-caption">Grandes centros, especialmente Sao Paulo, concentram parcela relevante da receita. A leitura e de tracao com dependencia geografica.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Pareto de receita por categoria</h3>
+            <div class="chart-box">
+              <img src="output/charts/pareto_receita_categoria.png" alt="Pareto de receita por categoria" />
+              <p class="chart-caption">Saude e beleza, relogios e presentes, e cama, mesa e banho aparecem entre as categorias que mais concentram valor.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="slide-top">
+          <div>
+            <div class="tag">Achado 2</div>
+            <h2>Atraso não é apenas tema operacional: ele corrói percepção de valor</h2>
+            <p>A melhor evidência não é a taxa mensal em si, mas a diferença de satisfação entre pedidos no prazo e atrasados. O comportamento observado aponta erosão clara de experiência.</p>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <p><strong>Leitura executiva:</strong> há evidência estatística de associação entre atraso e pior avaliação. Isso transforma logística em agenda de experiência, reputação e proteção de receita futura.</p>
+        </div>
+
+        <div class="grid grid-4">
+          <div class="kpi accent-top"><div class="label">Nota no prazo</div><div class="value">4,30</div><div class="sub">Patamar medio quando a promessa e cumprida</div></div>
+          <div class="kpi"><div class="label">Nota com atraso</div><div class="value">2,57</div><div class="sub">Queda forte na percepcao do cliente</div></div>
+          <div class="kpi"><div class="label">Gap absoluto</div><div class="value">-1,73</div><div class="sub">Pontos de diferenca entre os grupos</div></div>
+          <div class="kpi accent-top"><div class="label">Teste estatistico</div><div class="value">p &lt; 0,001</div><div class="sub">Diferenca robusta no Mann-Whitney</div></div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Boxplot de review_score por atraso</h3>
+            <div class="chart-box">
+              <img src="output/charts/boxplot_review_por_atraso.png" alt="Boxplot de review score por atraso" />
+              <p class="chart-caption">Pedidos atrasados apresentam distribuição de notas nitidamente pior. Este é o gráfico central para sustentar a tese de erosão de valor por logística.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Leitura que pode ser defendida</h3>
+            <ul class="list">
+              <li><span class="dot"></span><span>O atraso está associado a pior satisfação, sem necessidade de afirmar causalidade absoluta.</span></li>
+              <li><span class="dot"></span><span>A logística passa a ser lida como risco reputacional e comercial, não só operacional.</span></li>
+              <li><span class="dot"></span><span>A acao correta nao e generica: ela deve ir primeiro para os ofensores mais relevantes.</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="slide-top">
+          <div>
+            <div class="tag">Achado 3</div>
+            <h2>O problema logístico é priorizável porque não está distribuído de forma homogênea</h2>
+            <p>Parte relevante do risco aparece em sellers especificos, o que permite combinar volume, taxa de atraso e impacto em nota para montar uma agenda objetiva de priorizacao.</p>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <p><strong>Leitura executiva:</strong> a frente logística não exige um plano genérico para toda a base. A análise indica que o problema pode ser atacado primeiro onde o dano é mais concentrado.</p>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Top 10 sellers detratores</h3>
+            <div class="chart-box">
+              <img src="output/charts/top_10_sellers_detratores.png" alt="Top 10 sellers detratores" />
+              <p class="chart-caption">O ranking usa um score de risco que combina volume de pedidos, taxa de atraso e impacto em nota.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Top sellers para prioridade imediata</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Seller</th>
+                  <th>Pedidos</th>
+                  <th>% atraso</th>
+                  <th>Score risco</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>4a3ca9...</strong></td><td>1.772</td><td>11,00%</td><td>315,80</td></tr>
+                <tr><td><strong>4869f7...</strong></td><td>1.124</td><td>11,57%</td><td>281,37</td></tr>
+                <tr><td><strong>1f50f9...</strong></td><td>1.399</td><td>10,58%</td><td>271,00</td></tr>
+              </tbody>
+            </table>
+            <ul class="list" style="margin-top: 14px;">
+              <li><span class="dot"></span><span>Os ofensores mais relevantes combinam escala e friccao.</span></li>
+              <li><span class="dot"></span><span>Atuar neles tende a gerar ganho operacional e reputacional ao mesmo tempo.</span></li>
+              <li><span class="dot"></span><span>O grafico de dispersao por seller pode ficar como apendice tecnico para detalhamento.</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="slide-top">
+          <div>
+            <div class="tag">Achado 4</div>
+            <h2>A recompra ainda é pequena, mas revela espaço real para retenção seletiva</h2>
+            <p>A aquisicao domina o fluxo historico. Isso nao invalida a recompra; apenas indica que a oportunidade ainda esta pouco explorada e deve ser tratada com foco nas categorias certas.</p>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <p><strong>Leitura executiva:</strong> a recompra entra como oportunidade de frequência e retenção, não como prova de ticket superior. O foco mais defensável é ampliar onde a base recorrente já demonstra tração.</p>
+        </div>
+
+        <div class="grid grid-4">
+          <div class="kpi accent-top"><div class="label">Clientes unicos</div><div class="value">94.703</div><div class="sub">Base total de clientes observada</div></div>
+          <div class="kpi"><div class="label">Frequencia media</div><div class="value">1,03</div><div class="sub">Compras por cliente no periodo</div></div>
+          <div class="kpi"><div class="label">Com recompra</div><div class="value">3,04%</div><div class="sub">Parcela ainda pequena da base</div></div>
+          <div class="kpi accent-top"><div class="label">Receita da base</div><div class="value">R$ 886,6 mil</div><div class="sub">Receita gerada por clientes com recompra</div></div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Novos clientes vs clientes com recompra</h3>
+            <div class="chart-box">
+              <img src="output/charts/novos_vs_recompra_mes.png" alt="Novos clientes versus clientes com recompra" />
+              <p class="chart-caption">A entrada de novos clientes é muito maior do que a base recorrente. Isso aponta espaço para agenda de retenção sem afirmar valor superior automático por cliente.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Categorias mais compradas na base com recompra</h3>
+            <div class="chart-box">
+              <img src="output/charts/categorias_recompra.png" alt="Categorias mais compradas na base com recompra" />
+              <p class="chart-caption">A base recorrente se concentra em algumas categorias específicas, reforçando a ideia de retenção seletiva em vez de expansão difusa.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="slide-top">
+          <div>
+            <div class="tag">Cenário M+1</div>
+            <h2>Potencial de captura de valor no próximo mês</h2>
+            <p>O cenário M+1 sintetiza, em linguagem executiva, o potencial de ganho associado a uma combinação de três alavancas: sellers estratégicos, redução de atraso e retenção seletiva.</p>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <p><strong>Leitura executiva:</strong> o cenário representa uma simulação mensal orientada por hipóteses de melhoria. Ele não é promessa de resultado nem previsão causal exata; serve para dimensionar a relevância econômica das alavancas priorizadas.</p>
+        </div>
+
+        <div class="grid grid-4">
+          <div class="kpi accent-top"><div class="label">Baseline M+1</div><div class="value">R$ 87,17 mi</div><div class="sub">Patamar mensal de referencia</div></div>
+          <div class="kpi"><div class="label">Cenário simulado</div><div class="value">R$ 106,24 mi</div><div class="sub">Potencial mensal em um cenário de ativação combinada</div></div>
+          <div class="kpi"><div class="label">Ganho incremental</div><div class="value">R$ 19,07 mi</div><div class="sub">Valor adicional estimado no mes</div></div>
+          <div class="kpi accent-top"><div class="label">Ganho projetado</div><div class="value">+21,87%</div><div class="sub">Magnitude percentual estimada para o cenário</div></div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Como ler o cenário</h3>
+            <ul class="list">
+              <li><span class="dot"></span><span>O cenário consolida alavancas coerentes com a tese central: escala seletiva, disciplina operacional e maior frequência de compra.</span></li>
+              <li><span class="dot"></span><span>O objetivo não é prever com precisão o próximo mês, mas traduzir o tamanho econômico potencial de uma agenda combinada de melhoria.</span></li>
+              <li><span class="dot"></span><span>A leitura recomendada para a banca é de cenário executivo M+1, com uso para priorização e não como promessa de entrega automática.</span></li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>Comparação executiva M+1</h3>
+            <div class="scenario-stack">
+              <div class="scenario-row">
+                <div class="name">Baseline</div>
+                <div class="scenario-bar"><div class="scenario-fill baseline" style="width: 82%;"></div></div>
+                <div class="amount">R$ 87,17 mi</div>
+              </div>
+              <div class="scenario-row">
+                <div class="name">Cenário</div>
+                <div class="scenario-bar"><div class="scenario-fill" style="width: 100%;"></div></div>
+                <div class="amount">R$ 106,24 mi</div>
+              </div>
+            </div>
+            <div class="scenario-note">
+              <strong>Mensagem-chave:</strong> se a Olist capturar melhor o potencial dos sellers estratégicos, reduzir atrito logístico e ampliar retenção onde já existe tração, o cenário simulado indica espaço relevante de ganho mensal. Ainda assim, trata-se de um cenário de referência, não de uma promessa de resultado.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <div class="slide-top">
+          <div>
+            <div class="tag">Validação Analítica e Limites</div>
+            <h2>Governança da análise e prioridades executivas</h2>
+            <p>A defesa principal foi desenhada com criterio de confianca analitica: evidencias robustas entram na narrativa central; leituras mais sensiveis permanecem como apoio tecnico.</p>
+          </div>
+        </div>
+
+        <div class="takeaway">
+          <p><strong>Síntese final:</strong> o negócio cresceu, mas com concentração; a principal erosão de valor aparece na logística; e a melhor agenda executiva combina sellers estratégicos, ofensores logísticos e retenção seletiva com leitura prudente de cenário.</p>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Criterios de confianca analitica</h3>
+            <div class="priority"><div class="n">1</div><div><h4 style="margin-bottom:6px;">Narrativa principal baseada em evidências robustas</h4><p>Pareto de concentração, diferença de satisfação por atraso, sellers detratores e dinâmica de recompra sustentam a história principal.</p></div></div>
+            <div class="priority"><div class="n">2</div><div><h4 style="margin-bottom:6px;">Associacao, nao causalidade</h4><p>A leitura executiva usa formulacoes prudentes, evitando afirmar relacoes deterministicas onde a amostra nao sustenta essa conclusao.</p></div></div>
+            <div class="priority"><div class="n">3</div><div><h4 style="margin-bottom:6px;">Cenario como hipotese orientadora</h4><p>O bloco M+1 foi mantido como simulacao executiva para discutir magnitude potencial de ganho, nao como previsao exata de resultado.</p></div></div>
+            <div class="priority"><div class="n">4</div><div><h4 style="margin-bottom:6px;">Governanca melhora a defesa</h4><p>Essa selecao fortalece a consistencia do relatorio e reduz o risco de a banca deslocar a discussao para tecnicalidades pouco acionaveis.</p></div></div>
+          </div>
+
+          <div class="card dark-card">
+            <h3>Plano de acao prioritario</h3>
+            <div class="priority" style="border-color: rgba(255,255,255,0.08);">
+              <div class="n" style="background: var(--green);">1</div>
+              <div><h4 style="margin-bottom:6px; color:#fff;">Escalar sellers estrategicos</h4><p>Usar o grupo estrategico como frente de expansao seletiva e de alocacao comercial.</p></div>
+            </div>
+            <div class="priority" style="border-color: rgba(255,255,255,0.08);">
+              <div class="n" style="background: var(--green);">2</div>
+              <div><h4 style="margin-bottom:6px; color:#fff;">Atacar ofensores logísticos</h4><p>Atuar primeiro nos sellers detratores, reduzindo fricção onde o dano em satisfação já ficou claro.</p></div>
+            </div>
+            <div class="priority" style="border-color: rgba(255,255,255,0.08);">
+              <div class="n" style="background: var(--green);">3</div>
+              <div><h4 style="margin-bottom:6px; color:#fff;">Retenção seletiva</h4><p>Concentrar esforço em categorias com tração recorrente e tratar recompra como agenda de frequência, não de promessa imediata de ticket.</p></div>
+            </div>
+            <div class="priority" style="border-color: rgba(255,255,255,0.08);">
+              <div class="n" style="background: var(--green);">4</div>
+              <div><h4 style="margin-bottom:6px; color:#fff;">Monitorar logística como métrica de experiência</h4><p>Atraso deve ser acompanhado como indicador de reputação e satisfação, e não apenas como eficiência operacional.</p></div>
+            </div>
+            <p style="margin-top: 16px; color:#b9c7d3;">A leitura executiva final é direta: ampliar o que já traciona, corrigir onde o valor é corroído e usar cenários apenas como apoio à decisão.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="nav-controls">
+        <button id="prevBtn" aria-label="Slide anterior">←</button>
+        <button id="nextBtn" aria-label="Proximo slide">→</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const navButtons = Array.from(document.querySelectorAll(".nav button"));
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const eyebrow = document.querySelector(".eyebrow");
+      let current = 0;
+
+      if (eyebrow) eyebrow.innerHTML = "Tech Challenge &middot; Data Analytics";
+      if (prevBtn) prevBtn.innerHTML = "&larr;";
+      if (nextBtn) nextBtn.innerHTML = "&rarr;";
+
+      function updateStage(index) {
+        current = Math.max(0, Math.min(index, slides.length - 1));
+        slides.forEach((slide, i) => slide.classList.toggle("active", i === current));
+        navButtons.forEach((button, i) => button.classList.toggle("active", i === current));
+        prevBtn.disabled = current === 0;
+        nextBtn.disabled = current === slides.length - 1;
+      }
+
+      navButtons.forEach((button, index) => {
+        button.addEventListener("click", () => updateStage(index));
+      });
+
+      prevBtn.addEventListener("click", () => updateStage(current - 1));
+      nextBtn.addEventListener("click", () => updateStage(current + 1));
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "PageDown") {
+          updateStage(current + 1);
+        }
+        if (event.key === "ArrowLeft" || event.key === "PageUp") {
+          updateStage(current - 1);
+        }
+      });
+
+      updateStage(0);
+    })();
+  </script>
+</body>
+</html>
