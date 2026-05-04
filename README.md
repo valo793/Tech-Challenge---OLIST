@@ -14,7 +14,7 @@ O projeto está organizado em três frentes principais:
 
 ```text
 .
-├── analitycs/   Script principal da análise em Python
+├── analitycs/   Código-fonte da análise em Python
 ├── bases/       Bases CSV de entrada
 ├── output/      Tabelas, gráficos e relatórios gerados pelo pipeline
 └── docs/
@@ -25,6 +25,20 @@ O projeto está organizado em três frentes principais:
 ```
 
 Observação: a pasta `analitycs/` foi mantida com esse nome para preservar compatibilidade com a estrutura já usada no projeto.
+
+## Código Python
+
+O código Python do projeto fica em `analitycs/`, com o arquivo principal em `analitycs/analise.py`.
+
+Esse script concentra a parte de desenvolvimento analítico do repositório:
+
+- leitura e padronização dos CSVs de `bases/`;
+- preparação das bases derivadas em nível de pedido, seller e série temporal;
+- geração de tabelas consolidadas em `output/tables/`;
+- geração de gráficos analíticos e estatísticos em `output/charts/`;
+- geração dos relatórios em `output/report/`.
+
+Em outras palavras, o Power BI documenta a camada final de consumo, enquanto o Python concentra a etapa de exploração, validação estatística e produção dos artefatos analíticos auxiliares.
 
 ## Como Executar a Análise
 
@@ -57,14 +71,21 @@ O pipeline salva as saídas automaticamente em:
 
 O diretório `output/` continua versionado porque faz parte da entrega do projeto. Nele ficam:
 
-- gráficos usados na narrativa executiva e no apêndice técnico;
-- tabelas consolidadas para suporte analítico;
+- gráficos usados na narrativa executiva, no apêndice técnico e em validações estatísticas complementares;
+- tabelas consolidadas para suporte analítico e checagens anteriores à curadoria final;
 - relatório estatístico revisado em Markdown e DOCX.
+
+### Detalhamento de `output/`
+
+- `output/charts/` reúne não só os gráficos finais aproveitados na apresentação, mas também análises complementares feitas ao longo do projeto para validar hipóteses, confrontar métricas e sustentar decisões de curadoria. Entram aqui, por exemplo, boxplots, dispersões, controles estatísticos, séries mensais e paretos exploratórios.
+- `output/tables/` concentra os CSVs auxiliares usados para suporte analítico, validação das leituras estatísticas e consolidação das bases derivadas que alimentam os gráficos e relatórios.
+- `output/report/` guarda a síntese textual do pipeline Python, incluindo o relatório estatístico em Markdown e a versão DOCX gerada a partir dele.
 
 ## Leitura Recomendada
 
 Se você estiver entrando no projeto agora, a melhor ordem é:
 
 1. Ler este `README.md` para entender a estrutura.
-2. Abrir `docs/power-bi/README.md` para a lógica do dashboard.
+2. Abrir `analitycs/analise.py` para entender a lógica do pipeline analítico em Python.
 3. Consultar `output/report/analise_estatistica_olist.md` para a narrativa estatística gerada pelo Python.
+4. Abrir `docs/power-bi/README.md` para a lógica final do dashboard.
