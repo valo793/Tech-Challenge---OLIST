@@ -1,4 +1,4 @@
-# Power BI Report
-Olist Dashboard.pbix
 .tools/
-pbix-extract/
+__pycache__/
+*.pyc
+docs/power-bi/pbix-extract/

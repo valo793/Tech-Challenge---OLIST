@@ -41,12 +41,12 @@ Este documento reorganiza a saida estatistica do Python para fortalecer a aprese
 
 ### 1. Crescimento existe, mas e concentrado
 
-- Top 10 cidades concentram **33,35%** da receita.
-- Sao Paulo sozinha concentra **13,68%**.
-- Top 5 categorias concentram **39,28%** e top 10 categorias **62,37%**.
-- Top 10 sellers concentram **12,89%** da receita.
+- Top 10 cidades concentram **33,72%** da receita.
+- Sao Paulo sozinha concentra **14,08%**.
+- Top 5 categorias concentram **39,87%** e top 10 categorias **62,46%**.
+- Top 10 sellers concentram **13,31%** da receita.
 
-Texto executivo sugerido:
+Texto Executivo:
 > Os dados sugerem que a Olist ganhou escala comercial, mas com dependencia relevante de poucos polos geograficos, categorias lideres e um grupo restrito de sellers. Isso reforca tracao, mas tambem indica concentracao de risco e de oportunidade.
 
 ![Pareto de receita por cidade](../charts/pareto_receita_cidade.png)
@@ -57,12 +57,12 @@ Texto executivo sugerido:
 
 - Nota media no prazo: **4,30**
 - Nota media com atraso: **2,57**
-- Gap absoluto: **1,73 pontos**
-- Variacao relativa: **-40,24%**
+- Gap absoluto: **1,72 pontos**
+- Variacao relativa: **-40,16%**
 - Teste de Mann-Whitney: **p=<0,001**
 - Spearman atraso vs nota: **rho=-0,30 | p=<0,001**
 
-Texto executivo sugerido:
+Texto Executivo:
 > Ha evidencia estatistica de associacao entre atraso logistico e pior satisfacao. O comportamento observado aponta que logistica deve ser tratada como tema de experiencia e reputacao, e nao apenas de eficiencia operacional.
 
 ![Boxplot de review_score por atraso](../charts/boxplot_review_por_atraso.png)
@@ -73,19 +73,19 @@ Texto executivo sugerido:
 - O ranking prioriza sellers com volume suficiente para acao pratica.
 - A leitura correta e de priorizacao operacional, nao de causalidade individual.
 
-Texto executivo sugerido:
+Texto Executivo:
 > O problema logistico nao e homogeneo. A analise indica que parte relevante do risco esta concentrada em sellers especificos, o que permite plano direcionado em vez de acao generica sobre toda a base.
 
 | seller_id | seller_orders | late_rate | avg_delay_days | avg_review_score | risk_score |
 | --- | --- | --- | --- | --- | --- |
 | 4a3ca9315b744ce9f8e9374361493884 | 1772 | 11,00% | 1,17 | 3,85 | 315,80 |
-| 4869f7a5dfa277a7dca6462dcf3b52b2 | 1124 | 11,57% | 1,05 | 4,15 | 281,37 |
+| 4869f7a5dfa277a7dca6462dcf3b52b2 | 1123 | 11,49% | 1,03 | 4,15 | 279,99 |
 | 1f50f920176fa81dab994f9023523100 | 1399 | 10,58% | 1,01 | 4,14 | 271,00 |
 | cc419e0650a3c5ba77189a1882b7556a | 1651 | 6,12% | 0,46 | 4,15 | 176,15 |
 | 8b321bb669392f5163d04c59e235e066 | 930 | 10,43% | 0,93 | 4,10 | 175,55 |
-| 6560211a19b47992c3666cc44a7e94c0 | 1819 | 6,43% | 0,45 | 3,98 | 171,30 |
-| 7d13fca15225358621be4086e1eb0964 | 558 | 12,19% | 1,40 | 4,04 | 169,60 |
+| 6560211a19b47992c3666cc44a7e94c0 | 1818 | 6,38% | 0,44 | 3,98 | 168,20 |
 | da8622b14eb17ae2831f4ac5b9dab84a | 1311 | 7,63% | 0,82 | 4,18 | 167,69 |
+| 7d13fca15225358621be4086e1eb0964 | 557 | 12,03% | 1,32 | 4,05 | 166,25 |
 | ea8482cd71df3c1969d7b9473ff13abc | 1132 | 10,42% | 0,77 | 4,03 | 157,70 |
 | 620c87c171fb2a6dd6e8bb4dec959fc6 | 699 | 10,30% | 1,04 | 4,29 | 152,63 |
 
@@ -93,12 +93,12 @@ Texto executivo sugerido:
 
 ### 4. Recompra e oportunidade, nao prova isolada de valor
 
-- Clientes unicos: **94.703**
+- Clientes unicos: **93.039**
 - Frequencia media: **1,03 compras por cliente**
-- Clientes com recompra: **3,04%**
-- Receita da base com recompra: **R$ 886.560,94**
+- Clientes com recompra: **3,00%**
+- Receita da base com recompra: **R$ 724.801,52**
 
-Texto executivo sugerido:
+Texto Executivo:
 > A recompra ainda e pequena frente ao volume de aquisicao. Isso nao invalida a agenda de retencao; ao contrario, sugere que existe espaco para expansao seletiva nas categorias que ja mostram tracao dentro da base recorrente.
 
 ![Novos clientes vs clientes com recompra](../charts/novos_vs_recompra_mes.png)
@@ -107,24 +107,24 @@ Categorias mais relevantes dentro da base com recompra:
 
 | product_category_final | item_revenue | share |
 | --- | --- | --- |
-| bed_bath_table | R$ 117.790,67 | 13,29% |
-| sports_leisure | R$ 87.049,48 | 9,82% |
-| furniture_decor | R$ 79.087,92 | 8,92% |
-| computers_accessories | R$ 72.204,22 | 8,14% |
-| health_beauty | R$ 64.467,84 | 7,27% |
-| watches_gifts | R$ 57.394,58 | 6,47% |
-| housewares | R$ 42.566,45 | 4,80% |
-| toys | R$ 25.710,92 | 2,90% |
-| garden_tools | R$ 25.298,94 | 2,85% |
-| auto | R$ 24.687,43 | 2,78% |
+| bed_bath_table | R$ 94.838,43 | 13,08% |
+| sports_leisure | R$ 71.258,13 | 9,83% |
+| furniture_decor | R$ 61.260,76 | 8,45% |
+| computers_accessories | R$ 60.577,08 | 8,36% |
+| health_beauty | R$ 53.891,01 | 7,44% |
+| watches_gifts | R$ 52.173,05 | 7,20% |
+| housewares | R$ 33.386,46 | 4,61% |
+| toys | R$ 22.070,62 | 3,05% |
+| cool_stuff | R$ 21.332,06 | 2,94% |
+| perfumery | R$ 20.735,02 | 2,86% |
 
 ### 5. Sellers estrategicos e cenario futuro
 
 - O Python manteve apenas a identificacao operacional de sellers estrategicos por score composto de receita, pedidos e itens.
-- O grupo estrategico definido no recorte responde por **11,65%** da receita consolidada do grupo.
+- O grupo estrategico definido no recorte responde por **11,45%** da receita consolidada do grupo.
 - A simulacao e a regressao ficaram fora deste material e devem ser tratadas na versao validada em Excel.
 
-Texto executivo sugerido:
+Texto Executivo:
 > A leitura mais defensavel e usar sellers estrategicos como frente de expansao seletiva, apoiada por retencao e disciplina operacional. O cenario numerico deve ser apresentado separadamente, como hipotese validada fora deste relatorio Python.
 
 ## Recomendacao de uso em apresentacao
@@ -168,10 +168,10 @@ Os CSVs foram lidos automaticamente a partir de `C:\Users\Pichau\Desktop\Pos Dat
 
 Filtros e regras principais:
 
-- Recorte principal alinhado ao dashboard: pedidos a partir de `2017-01-01`.
+- Recorte principal alinhado ao dashboard: pedidos entregues de `2017-01-01` a `2018-08-31`.
 - Pedidos sem `order_purchase_timestamp` foram descartados.
-- A camada comercial excluiu `canceled` e `unavailable`.
-- Meses residuais removidos nas bordas da serie: `['2018-09']`.
+- A camada comercial considera apenas pedidos `delivered` com `order_delivered_customer_date` válido.
+- Meses residuais removidos nas bordas da serie: `[]`.
 - Analise de atraso considera apenas pedidos entregues com datas validas.
 - Quando havia mais de um review por pedido, a nota foi agregada pela media.
 

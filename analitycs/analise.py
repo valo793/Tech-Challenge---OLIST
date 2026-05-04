@@ -62,13 +62,15 @@ OUTPUT_ROOT = PROJECT_ROOT / "output"
 OUTPUT_CHARTS = OUTPUT_ROOT / "charts"
 OUTPUT_TABLES = OUTPUT_ROOT / "tables"
 OUTPUT_REPORT = OUTPUT_ROOT / "report"
-EXECUTIVE_REPORT_DOCX = PROJECT_ROOT / "Relatorio_Executivo_Tech_Challenge_Olist_Data.docx"
+DOCS_ROOT = PROJECT_ROOT / "docs"
+DOCS_REPORTS = DOCS_ROOT / "reports"
+EXECUTIVE_REPORT_DOCX = DOCS_REPORTS / "Relatorio_Executivo_Tech_Challenge_Olist_Data.docx"
 
-ORDER_STATUSES_TO_EXCLUDE = {"canceled", "unavailable"}
 SELLER_MIN_ORDERS_FOR_RISK = 20
 MIN_SAMPLE_WARN = 20
 PRIMARY_NEGATIVE_REVIEW_THRESHOLD = 2
 ANALYSIS_START_DATE = pd.Timestamp("2017-01-01")
+ANALYSIS_END_DATE = pd.Timestamp("2018-08-31")
 SCENARIO_DELTAS = {
     "late_rate_pct": -3.0,
     "repurchase_customer_rate_pct": 3.0,
@@ -375,7 +377,7 @@ def currency_axis_formatter(value: float, _: int) -> str:
 
 
 def ensure_output_dirs() -> Dict[str, Path]:
-    for path in [OUTPUT_ROOT, OUTPUT_CHARTS, OUTPUT_TABLES, OUTPUT_REPORT]:
+    for path in [OUTPUT_ROOT, OUTPUT_CHARTS, OUTPUT_TABLES, OUTPUT_REPORT, DOCS_REPORTS]:
         path.mkdir(parents=True, exist_ok=True)
     return {
         "root": OUTPUT_ROOT,
@@ -660,26 +662,37 @@ def prepare_datasets(datasets: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
     sellers["seller_state"] = sellers["seller_state"].fillna("unknown").astype(str).str.upper()
 
     orders["order_status"] = orders["order_status"].fillna("unknown").astype(str).str.lower()
-    orders = orders[orders["order_purchase_timestamp"].notna()].copy()
+
+    orders = orders[
+        orders["order_purchase_timestamp"].notna()
+    ].copy()
 
     commercial_orders = orders.loc[
-        ~orders["order_status"].isin(ORDER_STATUSES_TO_EXCLUDE)
+        (orders["order_status"] == "delivered")
+        & orders["order_delivered_customer_date"].notna()
     ].copy()
-    dropped_orders = len(orders) - len(commercial_orders)
-    if dropped_orders:
-        info(
-            f"Pedidos excluídos da camada comercial por status cancelado/indisponível: {dropped_orders}"
-        )
+
+    commercial_orders["reference_timestamp"] = commercial_orders["order_delivered_customer_date"]
+    commercial_orders["reference_date"] = commercial_orders["reference_timestamp"].dt.floor("D")
+    commercial_orders["year_month_period"] = commercial_orders["reference_timestamp"].dt.to_period("M")
+    commercial_orders["year_month"] = commercial_orders["year_month_period"].astype(str)
 
     pre_period_rows = len(commercial_orders)
+
     commercial_orders = commercial_orders.loc[
-        commercial_orders["order_purchase_timestamp"] >= ANALYSIS_START_DATE
+        (commercial_orders["reference_timestamp"] >= ANALYSIS_START_DATE)
+        & (
+            commercial_orders["reference_timestamp"]
+            < ANALYSIS_END_DATE + pd.Timedelta(days=1)
+        )
     ].copy()
+
     excluded_pre_period = pre_period_rows - len(commercial_orders)
     if excluded_pre_period:
         info(
-            "Pedidos anteriores ao recorte principal do dashboard foram excluídos: "
-            f"{excluded_pre_period} linhas antes de {ANALYSIS_START_DATE.date()}"
+            "Pedidos fora do recorte principal por data de entrega foram excluídos: "
+            f"{excluded_pre_period} linhas fora de "
+            f"{ANALYSIS_START_DATE.date()} a {ANALYSIS_END_DATE.date()}"
         )
 
     item_level = order_items.merge(
@@ -693,6 +706,10 @@ def prepare_datasets(datasets: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
                 "order_delivered_carrier_date",
                 "order_delivered_customer_date",
                 "order_estimated_delivery_date",
+                "reference_timestamp",
+                "reference_date",
+                "year_month_period",
+                "year_month",
             ]
         ],
         on="order_id",
@@ -724,9 +741,11 @@ def prepare_datasets(datasets: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
     item_level["product_category_final"] = item_level["product_category_final"].fillna("unknown")
     item_level["price"] = item_level["price"].fillna(0)
     item_level["freight_value"] = item_level["freight_value"].fillna(0)
-    item_level["item_revenue"] = item_level["price"] + item_level["freight_value"]
-    item_level["purchase_date"] = item_level["order_purchase_timestamp"].dt.floor("D")
-    item_level["year_month_period"] = item_level["order_purchase_timestamp"].dt.to_period("M")
+    item_level["item_revenue"] = item_level["price"]
+    item_level["item_revenue_with_freight"] = item_level["price"] + item_level["freight_value"]
+
+    item_level["purchase_date"] = item_level["reference_timestamp"].dt.floor("D")
+    item_level["year_month_period"] = item_level["reference_timestamp"].dt.to_period("M")
     item_level["year_month"] = item_level["year_month_period"].astype(str)
 
     order_revenue = (
@@ -755,12 +774,13 @@ def prepare_datasets(datasets: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
     order_level = order_level.merge(reviews, on="order_id", how="left")
     order_level["customer_city"] = order_level["customer_city"].fillna("unknown").astype(str).str.title()
     order_level["customer_state"] = order_level["customer_state"].fillna("unknown").astype(str).str.upper()
-    order_level["purchase_date"] = order_level["order_purchase_timestamp"].dt.floor("D")
-    order_level["year_month_period"] = order_level["order_purchase_timestamp"].dt.to_period("M")
+    order_level["purchase_date"] = order_level["reference_timestamp"].dt.floor("D")
+    order_level["year_month_period"] = order_level["reference_timestamp"].dt.to_period("M")
     order_level["year_month"] = order_level["year_month_period"].astype(str)
 
     valid_delivery_mask = (
-        order_level["order_delivered_customer_date"].notna()
+        (order_level["order_status"] == "delivered")
+        & order_level["order_delivered_customer_date"].notna()
         & order_level["order_estimated_delivery_date"].notna()
     )
     order_level["delivered_with_valid_dates"] = valid_delivery_mask
@@ -842,7 +862,7 @@ def prepare_datasets(datasets: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
         .sort_values("purchase_date")
     )
 
-    complete_month_bounds = get_complete_month_bounds(order_level["order_purchase_timestamp"])
+    complete_month_bounds = get_complete_month_bounds(order_level["reference_timestamp"])
     forced_start_period = ANALYSIS_START_DATE.to_period("M")
     if complete_month_bounds["start"] is not None and complete_month_bounds["start"] > forced_start_period:
         complete_month_bounds["start"] = forced_start_period
@@ -2656,9 +2676,9 @@ Os CSVs foram lidos automaticamente a partir de `{data_dir}`. Arquivos carregado
 
 Filtros e regras principais:
 
-- Recorte principal alinhado ao dashboard: pedidos a partir de `{ANALYSIS_START_DATE.date()}`.
+- Recorte principal alinhado ao dashboard: pedidos entregues de `{ANALYSIS_START_DATE.date()}` a `{ANALYSIS_END_DATE.date()}`.
 - Pedidos sem `order_purchase_timestamp` foram descartados.
-- A camada comercial excluiu `canceled` e `unavailable`.
+- A camada comercial considera apenas pedidos `delivered` com `order_delivered_customer_date` válido.
 - Meses residuais removidos nas bordas da serie: `{prepared['complete_month_bounds']['dropped']}`.
 - Analise de atraso considera apenas pedidos entregues com datas validas.
 - Quando havia mais de um review por pedido, a nota foi agregada pela media.
